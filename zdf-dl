@@ -15,7 +15,8 @@
 
 # Get url to asx video stream out of the no flash version of the zdf mediathek
 url_noflash="$1"
-url_stream=$(curl -s ${url_noflash} | grep asx | grep -o 'http://[^"]*')
+url_asx=$(curl -s ${url_noflash} | grep asx | grep -o 'http://[^"]*')
+url_mov=$(curl -s ${url_noflash} | grep -e mov | grep -e high| grep -o 'http://[^"]*')
 
 # Check if No Flash Mediathek is used
 if [[ "${url_noflash}" != *flash=off* ]]
@@ -30,10 +31,11 @@ fi
 # If filename is empty, get name out of url
 filename=$2
 if [ -z ${filename} ]; then
-	filename=$(echo ${url_noflash} | cut -d/ -f8- | cut -d? -f1)".wmv"
+	#filename=$(echo ${url_noflash} | cut -d/ -f8- | cut -d? -f1)".wmv"
+	filename=$(echo ${url_noflash} | cut -d/ -f8- | cut -d? -f1)".mp4"
 fi 
 
 # Get stream and save it to disk
-echo "Lade ${filename} herunter, bitte haben Sie etwas Geduld..."
-mplayer -really-quiet -nolirc -playlist ${url_stream} -dumpstream -dumpfile ${filename}
-
+#echo "Lade ${filename} herunter, bitte haben Sie etwas Geduld..."
+#mplayer -really-quiet -nolirc -playlist ${url_stream} -dumpstream -dumpfile ${filename}
+curl ${url_mov} | xargs cvlc -vvv --no-sout-display --sout="file/mp4:${filename}"
